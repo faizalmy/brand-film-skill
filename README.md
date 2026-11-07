@@ -38,6 +38,7 @@ git -C ~/.claude/skills/brand-film pull
 
 - Node 20.19+ and npm (Remotion 4 is installed by `npm i` in the template)
 - ffmpeg for `ffprobe` checks: `brew install ffmpeg`
+- bash (the QA script)
 - Python 3 with Pillow (contact sheets): `pip install pillow`
 - librosa and numpy (beat analysis of a music track): `pip install librosa numpy`
 - Playwright (capture scripts): `npm i -D playwright && npx playwright install chromium` in the film's project, or
@@ -73,16 +74,27 @@ It renders the final 4K video only when you ask.
 | `SKILL.md` | The method: language, story shape, rules, timing system, workflow |
 | `brands/_new-brand.md` | Form to fill for a new brand |
 | `brands/reui.md` | The ReUI profile |
-| `template/` | Remotion project of the approved ReUI film (`npm i`, then `npx remotion studio`) |
+| `template/` | Remotion project of the approved ReUI film. It plays after the captures and the music are in (below) |
+| `template/src/scenes/` | One file per scene: line, ring, construct, site, letters, blocks, looks, final. Pick, reorder or remove them by name in the `SCENES` list in `template/src/Refreshed.tsx` |
 | `scripts/qa.sh`, `qa.mjs`, `sheet.py` | Render chosen frames as stills and build a contact sheet |
 | `scripts/beat.py` | Tempo, first beat and drop of a music track |
 | `scripts/reui/` | Capture scripts for reui.io (site, components, blocks); examples for other brands |
 | `references/` | ReUI film map, its 38 frames, the review checklist and subagent brief |
 
-The template has no recordings or music. Run the capture scripts first, and add your own track to
-`public/audio/`.
+The template ships no screenshots or music, so Studio shows errors until both are in. In a copy of `template/`:
+
+1. `npm i`, then `npm i -D playwright && npx playwright install chromium`
+2. Run the capture scripts from that folder, site first: `node <skill>/scripts/reui/site-object.mjs`, then
+   `live.mjs`, `dash.mjs`, `block-live.mjs` (for another brand, adapt them first)
+3. Save your track as `public/audio/bed.wav`
+4. `npx remotion studio`
+
+`<skill>` is where you cloned this repo.
 
 ## License
 
-Code: MIT, see `LICENSE`. The ReUI name, logo, website screenshots and product UI belong to ReUI. They are here
-as an example. Do not reuse them as your own brand. Inter is under the SIL Open Font License.
+Code: MIT, see `LICENSE`. The ReUI name, logo, website, product UI and the demo content inside it (shown in
+`references/reui-frames/`) belong to ReUI. They are here as an example. Do not reuse them as your own brand.
+
+Inter is under the SIL Open Font License, see `template/public/fonts/OFL.txt`. The two sound effects in
+`template/public/sfx/` were made by the author with ElevenLabs and may be used with this template.

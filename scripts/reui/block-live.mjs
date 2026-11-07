@@ -1,4 +1,4 @@
-// Real mouse on the real flow-1 and event-calendar-1 blocks, one screenshot a step (same frame format as rec/dash.mjs): a step dragged
+// Real mouse on the real flow-1 and event-calendar-1 blocks, one screenshot a step (same frame format as dash.mjs): a step dragged
 // across the workflow canvas, an event dragged to another day. Measures the boxes for the dimension layer. Adds both to public/cap/live/meta.json.
 import { createRequire } from "node:module"
 import fs from "node:fs"
@@ -7,7 +7,7 @@ const { chromium } = require("playwright")
 const OUT = "public/cap/live"
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
 const b = await chromium.launch()
-const meta = JSON.parse(fs.readFileSync(`${OUT}/meta.json`, "utf8"))
+const meta = fs.existsSync(`${OUT}/meta.json`) ? JSON.parse(fs.readFileSync(`${OUT}/meta.json`, "utf8")) : {}
 const run = async ({ dir, url, theme, clip, grab, by, measure, tool }) => {
   const c = await b.newContext({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 2, colorScheme: theme })
   await c.addInitScript((t) => { try { localStorage.setItem("reui-theme", t); localStorage.setItem("theme", t) } catch {} }, theme)

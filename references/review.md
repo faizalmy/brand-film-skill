@@ -2,13 +2,15 @@
 
 Use for a subagent review ("find weak spots") and for your own final pass. Report by frame, ranked.
 
-## Subagent brief (paste, fill the <...>)
+## Subagent brief (paste, fill the <...>; `<skill>` is this skill's folder)
 
 > You are reviewing a 60 s brand film made in Remotion. Project: `<project path>`, composition `Refreshed`,
-> 60 fps, story map in `~/.claude/skills/brand-film/references/example-reui-refreshed.md (structure) and ~/.claude/skills/brand-film/brands/<brand>.md (brand rules)`, film code in `src/Refreshed.tsx`.
+> 60 fps. Story map: `<skill>/references/example-reui-refreshed.md` (structure). Brand rules:
+> `<skill>/brands/<brand>.md`. Film code: the `SCENES` list in `src/Refreshed.tsx`, one file per scene in
+> `src/scenes/`, shared code in `src/lib.tsx`.
 > Do not edit any file and do not render a video.
 >
-> 1. From the project folder, run `~/.claude/skills/brand-film/scripts/qa.sh <scratch>/review 0.35 <every 40th frame from 0 to the end>`
+> 1. From the project folder, run `<skill>/scripts/qa.sh <scratch>/review 0.35 <every 40th frame from 0 to the end>`
 >    and read `sheet.jpg`. Then render denser stills (every 6-10 frames) around each shot join and each sync frame
 >    in the map.
 > 2. Judge it as a viewer of a premium brand film. Use the checklist below: pacing, sync, ending, defects, never.
@@ -30,8 +32,8 @@ Before relaying it:
 - Do two similar transitions repeat (film 1: the same wipe-with-a-dot used 7 times)?
 
 ## Sync
-- Does each big change land on its hit (`HITS`) and does the final wordmark complete on the last slam?
-- Does `KickBump` pulse during holds where the picture should be still?
+- Does each big change land on its hit (each scene's `hits`) and does the final wordmark complete on the last slam?
+- Does the kick pulse during holds where the picture should be still?
 
 ## Ending
 - Does the end card say what the brand is, in the brand's own published words?

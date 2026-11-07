@@ -3,7 +3,7 @@
 import { createRequire } from "node:module"
 const { renderStill, selectComposition, openBrowser } = createRequire(process.cwd() + "/")("@remotion/renderer")
 const [bundle, out, scale, ...frames] = process.argv.slice(2)
-const ID = process.env.COMP ?? "Reel"
+const ID = process.env.COMP ?? "Refreshed"
 const browser = await openBrowser("chrome")
 const comp = await selectComposition({ serveUrl: bundle, id: ID, puppeteerInstance: browser })
 for (const f of frames.map(Number)) {

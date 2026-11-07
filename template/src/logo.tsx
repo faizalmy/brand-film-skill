@@ -1,11 +1,11 @@
 import React from 'react';
 
-// Real paths from reui.io's header SVG (public/cap/logo-*.svg). The site fills them with currentColor,
+// Real paths from reui.io's header SVG (public/brand/logo-icon-light.svg). The site fills them with currentColor,
 // so the light logo is foreground #0a0a0a on #ffffff and the dark logo is #fafafa on #0a0a0a.
 export const RING_D = 'M67.1667 3.84615H33.8333C17.548 3.84615 4.34615 17.048 4.34615 33.3333V66.6667C4.34615 82.952 17.548 96.1538 33.8333 96.1538H67.1667C83.452 96.1538 96.6538 82.952 96.6538 66.6667V33.3333C96.6538 17.048 83.452 3.84615 67.1667 3.84615ZM33.8333 0C15.4238 0 0.5 14.9238 0.5 33.3333V66.6667C0.5 85.0762 15.4238 100 33.8333 100H67.1667C85.5762 100 100.5 85.0762 100.5 66.6667V33.3333C100.5 14.9238 85.5762 0 67.1667 0H33.8333Z';
 export const U_D = 'M25.668 56.879V29.6978C25.668 27.1032 27.7713 24.9998 30.366 24.9998V24.9998C32.9606 24.9998 35.0639 27.1032 35.0639 29.6978V56.879C35.0639 61.6976 38.9702 65.6038 43.7888 65.6038H57.2116C62.0302 65.6038 65.9364 61.6976 65.9364 56.879V43.5904C65.9364 40.9958 68.0398 38.8924 70.6344 38.8924V38.8924C73.229 38.8924 75.3324 40.9958 75.3324 43.5904V56.879C75.3324 66.8869 67.2194 74.9998 57.2116 74.9998H43.7888C33.7809 74.9998 25.668 66.8869 25.668 56.879Z';
 export const DOT = { cx: 70.634, cy: 29.698, r: 4.698 };
-// the U's centre line, same geometry as U_D, for drawing it as a stroke (promo-motion-kit S10Brand)
+// the U's centre line, same geometry as U_D, for drawing it as a stroke
 export const U_LINE = 'M30.366 29.698V56.879A13.424 13.424 0 0 0 43.789 70.302H57.212A13.424 13.424 0 0 0 70.634 56.879V43.590';
 export const U_STROKE = 9.396;
 export const LETTERS = [

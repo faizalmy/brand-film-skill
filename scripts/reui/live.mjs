@@ -39,7 +39,7 @@ const shooter = (p, dir, clip) => {
   }
 }
 const centre = async (l) => { const r = await l.boundingBox(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, ...r } }
-const meta = {}
+const meta = fs.existsSync(`${OUT}/meta.json`) ? JSON.parse(fs.readFileSync(`${OUT}/meta.json`, "utf8")) : {} // keeps the other captures' entries
 
 /* Kanban, light: a card dragged from Backlog to In Progress, on the real dnd. */
 {
@@ -76,7 +76,7 @@ const meta = {}
 /* Data Grid, dark: rows ticked one after another, then a real sort on a real column. */
 {
   const p = await open("dark", "c-data-grid-22")
-  const clip = JSON.parse(fs.readFileSync("public/cap/meta.json", "utf8")).dark["c-data-grid-22"]
+  const clip = { x: 72, y: 169.5, width: 1136, height: 461 } // the card, measured at this viewport
   const s = shooter(p, "grid", clip)
   const boxes = p.locator('tbody tr [role="checkbox"]')
   const n = await boxes.count()

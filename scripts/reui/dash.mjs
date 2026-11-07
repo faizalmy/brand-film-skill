@@ -37,7 +37,7 @@ await glide({ x: q.x + q.width / 2, y: q.y + q.height / 2 }, 6)
 await p.mouse.down(); await p.mouse.up()
 for (const ms of [60, 120, 180, 240, 300, 400]) { await p.waitForTimeout(ms); await shot() }
 await b.close()
-const meta = JSON.parse(fs.readFileSync(`${OUT}/meta.json`, "utf8"))
+const meta = fs.existsSync(`${OUT}/meta.json`) ? JSON.parse(fs.readFileSync(`${OUT}/meta.json`, "utf8")) : {}
 meta.dash = { clip, frames }
 fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify(meta, null, 1))
 console.log("frames", frames.length)

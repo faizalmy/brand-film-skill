@@ -1,9 +1,9 @@
 {
   "name": "brand-film",
   "version": "1.0.0",
-  "description": "My Remotion video",
+  "description": "Brand film template (Remotion)",
   "repository": {},
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
@@ -12,7 +12,6 @@
     "@remotion/cli": "4.0.540",
     "@remotion/fonts": "4.0.540",
     "@remotion/media": "4.0.540",
-    "@remotion/motion-blur": "^4.0.540",
     "@remotion/renderer": "4.0.540",
     "react": "19.3.1",
     "react-dom": "19.3.1",

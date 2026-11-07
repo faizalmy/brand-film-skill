@@ -17,8 +17,8 @@ Pixel Lattice, 116 BPM, `SLOW = 2`, 60 beats, 3724 frames (62 s). Frame = film f
 | 52-60 | 3228-3724 | `Final` | Dot draws U and ring, logo lands, R E U I settle, then reui.io subline and domain | slam b(56) = 3476, wordmark complete |
 
 Audio:
-- Bed from `BED_FROM = 2980` frames into the track at `0.62`, ducked to 75% under `Construct` (beats 11-20).
-- `KickBump` (0.8% scale per kick) runs until beat 49, off in `STILL` ranges (opening hold, logo hold, settled
+- Bed from `BED_FROM = 2980` frames into the track at `0.62`, ducked to 75% under `construct` (beats 11-20).
+- The kick pulse (0.8% scale per kick) runs until beat 49, off in each scene's `still` ranges (opening hold, logo hold, settled
   block holds).
 
 Things the user rejected (do not bring back):

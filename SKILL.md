@@ -18,6 +18,8 @@ implementation to copy and adapt, not a generic library.
 - `references/reui-frames/`: the visual template. 38 stills of the approved film plus `sheet.jpg`. Look at
   the sheet before designing, and compare your stills against the matching frame when you check.
 - `references/review.md`: weak-spot checklist and the subagent review brief.
+- `<skill>` below means this skill's folder: `~/.claude/skills/brand-film` for a global install, or
+  `<project>/.claude/skills/brand-film` for a per-project one.
 
 ## Prerequisites (check first, install what is missing)
 
@@ -30,10 +32,12 @@ installed.
 | Remotion and its renderer | `npx remotion versions` in the project | `npm i` in the project (versions are pinned in `template/package.json`); in an existing project: `npm i remotion @remotion/cli @remotion/renderer @remotion/fonts @remotion/media` at one shared version |
 | Chrome for Remotion | `npx remotion browser ensure` | same command; it downloads Chrome Headless Shell |
 | ffmpeg / ffprobe (final file check) | `ffprobe -version` | `brew install ffmpeg` |
+| bash (QA script) | `bash --version` | ships with macOS and Linux |
 | Python 3 + Pillow (contact sheets) | `python3 -c "import PIL"` | `pip3 install pillow` |
 | librosa + numpy (`beat.py`, new tracks only) | `python3 -c "import librosa"` | `pip3 install librosa numpy` |
 | Playwright + Chromium (captures) | `node -e "require('playwright')"` in the project | `npm i -D playwright && npx playwright install chromium` |
-| A music bed | a file in `public/audio/` | from the source the brand profile names; never invent one |
+| A music bed | `public/audio/bed.wav` | from the source the brand profile names; never invent one |
+| Captures | `public/cap/site-object/*.jpg`, `public/cap/live/<dir>/*.jpg` | run the capture scripts (Workflow 3). The template ships no screenshots, so it does not play before this |
 
 Remotion's license: free for individuals and small teams; companies above its size limit need a company license
 (https://remotion.dev/license). Mention it once when the brand is a company.
@@ -51,19 +55,37 @@ Remotion's license: free for individuals and small teams; companies above its si
 - No logo or text over product UI. Labels sit outside the UI, in clear space.
 - Long still holds are part of it. Calm is fine, dead is not.
 
-## Story shape (adapt, don't copy blindly)
+## Scenes (pick, reorder or remove)
 
-| Part | Beats (of 60) | Job |
-|---|---|---|
-| Line | 0-8 | The lead element becomes a caret and types the brand's own line |
-| Mark | 8-20 | The element opens into the mark; the mark is drawn from its construction |
-| Site | 20-32 | The logo zooms out and is the site's own nav logo, then a quick tour; a real site interaction on a hit |
-| Name | 32-36 | The wordmark, one letter per beat |
-| Product | 36-49 | 3-4 real product views, real drags, measured dims, hard cuts, about 3 beats each |
-| Looks | 49-52 | The mark drawn differently each beat; the lead element never moves |
-| End | 52-60 | Logo lands, letters settle on the last hit, then the brand's line and domain |
+Each scene is its own file in `template/src/scenes/`, registered by name in `scenes/index.ts` with the colour of its
+first frame. The film is the `SCENES` list in `template/src/Refreshed.tsx`, which picks scenes by name. To drop a
+scene, delete its line; to reorder, move the line. Nothing else needs to change: start beats, total length, hits,
+holds, kick, music ducks and each scene's closing wipe (to the next scene's first colour) follow the list.
 
-Give time to what the brand is proud of. Trim the looks before the construction or the product.
+| Scene | File | Beats | Job | Frames in `references/reui-frames/` |
+|---|---|---|---|---|
+| `line` | `scenes/line.tsx` | 8 | The lead dot flies in, becomes a caret, types the brand's line and domain | f0060-f0496 |
+| `ring` | `scenes/ring.tsx` | 3 | The dot opens to a disc, empties to a line, squares up into the mark's ring | f0560 f0682 |
+| `construct` | `scenes/construct.tsx` | 9 | The mark drawn from its own paths: rulers, circles, measured dims, zoom and pan | f0760-f1100 |
+| `site` | `scenes/site.tsx` | 12 | The logo becomes the site's nav logo, a tilted tour, the dark toggle on beat 8 | f1241-f1850 |
+| `letters` | `scenes/letters.tsx` | 4 | The wordmark, one letter per beat, construction beside each | f1986-f2120 |
+| `blocks` | `scenes/blocks.tsx` | 13 | Real product views, real drags, measured dims, hard cuts | f2234-f2950 |
+| `looks` | `scenes/looks.tsx` | 3 | The mark drawn three other ways; the dot never moves | f3042-f3166 |
+| `final` | `scenes/final.tsx` | 8 | The dot draws the mark, logo lands, name settles on the slam, the line | f3228-f3700 |
+
+- Scene entry fields, all in beats from the scene's own start: `beats`, `hits` (`[sound, beat, volume]`), `still`
+  (no kick pulse), `kick` (pulse on the music's kick), `duck` (music volume under the scene).
+- Changing a scene's `beats` also needs its inner timing changed (the beat constants inside its file).
+- A new scene: add its file, register it in `scenes/index.ts` with its first colour, read `useNext()` for its exit.
+- **Dot handoffs.** Each scene starts its dot where the scene before it left it. After a removal or a reorder,
+  render both frames of every new join.
+  - A jump there is a hard cut. Accept it, or set the next scene's start position. `blocks` starts from the last
+    letter (`contourPt`); `looks` and `final` use `DOT_AT` and `FINAL_DOT` in `lib.tsx`.
+  - `site` ends by diving into the R of the nav wordmark, which `letters` draws next. With another scene after it,
+    shorten the dive (`L_IN`, `L_LAND` in `scenes/site.tsx`) or the dive lands on a blank frame.
+- Give time to what the brand is proud of. Trim `looks` before `construct` or `blocks`.
+- Shared code lives in `src/lib.tsx`: clock, palette, helpers, and the logo and letter geometry.
+  Scene files import only from it and from `logo.tsx`.
 
 ## Hard rules
 
@@ -83,7 +105,7 @@ Give time to what the brand is proud of. Trim the looks before the construction 
 
 ## Timing system (easy to break)
 
-All in `src/Refreshed.tsx`:
+Clock and helpers in `src/lib.tsx`; scene timing in the `SCENES` list in `src/Refreshed.tsx`:
 
 - **Clock.**
   - `BPM` of the bed. `SLOW = 2`: the story runs at half the music. Local `useCurrentFrame()` returns slowed frames.
@@ -91,47 +113,52 @@ All in `src/Refreshed.tsx`:
   - `real(n) = b(n) * SLOW` = the film frame of beat n.
 - **`ramp(f, from, to, ease)`** is the only way to animate. It snaps from/to to the `T / 8` grid and returns 1
   when they snap together. Never pass 0-1 fractions; use `clamp01((x - a) / (b - a))`.
-- **Shots.** `SHOTS = [[fromBeat, toBeat, Component]]`. Move a boundary together with every beat constant inside
-  that shot.
-- **Sound.**
-  - `HITS` = sfx on beats.
-  - `BED_FROM` = start offset into the track. `BED_VOL`, with a `volume` callback for ducks.
-- **Kick.** `KickBump` pulses the frame per kick until the looks. `STILL` = beat ranges with no pulse.
+- **Scenes.** `SCENES` (see above) places scenes and their hits, holds, kick and ducks.
+- **Music.** `BED` is the file (`public/audio/bed.wav`), `BED_FROM` the start offset into the track in film
+  frames (seconds x 60), `BED_VOL` the level.
 - **Sync points** are the spine: each big change sits on a hit. Moving one means re-pinning the shots around it.
-- **New track:** `python3 scripts/beat.py <track.wav>` gives tempo, first-beat phase and the drop. Set `BPM` and
-  `BED_FROM`, then put the sync points on its accents.
+- **New track:** `python3 <skill>/scripts/beat.py <track.wav>` gives the BPM, the first beat, the drop and a
+  `BED_FROM` in frames. Set `BPM` and `BED_FROM`, then put the sync points on its accents.
 
 ## Adapting the template to a brand
 
 | Swap | Where |
 |---|---|
 | Mark paths (ring, inner shape, lead element), the shape's centreline and stroke, wordmark letters and positions, viewBox | `src/logo.tsx` (`RING_D`, `U_D`, `DOT`, `U_LINE`, `U_STROKE`, `LETTERS`, `LETTER_X`, `VB`, `uPoint`) |
-| Palette, font, tracking | top of `src/Refreshed.tsx` (`INK`, `PAPER`, `LIGHT_INK`, `DIM`, `FONT`, `TRACK`) and `public/fonts` |
-| The brand's line and domain | `LINE`, `DOMAIN` |
-| Site captures | a capture script like `scripts/reui/site-object.mjs` writing `public/cap/site-object/` |
-| Product views | capture scripts like `scripts/reui/live.mjs`, `dash.mjs`, `block-live.mjs`. Each writes one screenshot per mouse step plus measured boxes to `public/cap/live/<dir>/` and `meta.json`. Then edit the `NAMES_UI`/`BLOCK_UI` entries and the `dir` union in `WITH_UI` |
-| Looks | `LOOKS`: 3-4 ways to draw the mark (as its path data, halftone, construction lines) |
-| Music and hits | `public/audio/`, `BPM`, `BED_FROM`, `HITS` |
+| Palette, font, tracking, music tempo | top of `src/lib.tsx` (`INK`, `PAPER`, `LIGHT_INK`, `DIM`, `FONT`, `TRACK`, `BPM`), `public/fonts` and the `loadFont` call in `src/Root.tsx` |
+| The brand's line and domain | `LINE`, `DOMAIN` at the end of `src/lib.tsx` |
+| Logo geometry used across scenes | `src/lib.tsx`: `DOT_AT` (mark centre 50.5, 50), `LETTER_BOX` (each letter's x0, x1, baseline), `LET_U`, the lockup width `268` and cap height `31.809` in `Lockup`, `Landing` and `scenes/letters.tsx` |
+| Construction numbers | `scenes/construct.tsx`: `GUIDE_X`, `GUIDE_Y`, `CIRCLES`, `W_DIMS`, `W_LEADS` (all measured off the mark) |
+| Site captures | a capture script like `scripts/reui/site-object.mjs` writing `public/cap/site-object/`; in `scenes/site.tsx` the hero words it reads (`O_WORD`, `O_MCP`), `NAV_LOGO` (measured off the still) and the typed `'#0a0a0a on #ffffff'` |
+| Product views | capture scripts like `scripts/reui/live.mjs`, `dash.mjs`, `block-live.mjs`. Each writes one screenshot per mouse step plus measured boxes to `public/cap/live/<dir>/` and its entry in `meta.json` (others kept). Then edit the `NAMES_UI`/`BLOCK_UI` entries and the `dir` union in `WITH_UI` (`scenes/blocks.tsx`) |
+| Looks | `LOOKS` and `OUTER` (the ring's centre line) in `scenes/looks.tsx`: 3-4 ways to draw the mark |
+| End card | `scenes/final.tsx`: `RING_LINE` and the two `Lead` labels (the dot's measured centre and radius) |
+| Music and hits | `public/audio/bed.wav`, `BPM` (`lib.tsx`), `BED_FROM`, `BED_VOL`, `PEAK` and each scene's `hits` (`Refreshed.tsx`) |
 
-A mark with a different structure (no dot, no ring) needs its own `Construct`, `Opening` and `Final`. Keep the
+The wordmark is built for four letters: `Lockup`'s width and the `letters` scene assume the R E U I set. A longer name
+needs `LETTER_BOX`, the lockup width and the `letters` beats redone from its own SVG.
+
+A mark with a different structure (no dot, no ring) needs its own `construct`, `ring` and `final` scenes. Keep the
 idea: draw it from its real geometry, led by one element.
 
 ## Workflow
 
 1. Read `brands/<brand>.md` (or write it). Measure the logo SVG and the site; collect the brand's verbatim lines.
 2. **New film:**
-   - `cp -R ~/.claude/skills/brand-film/template <project>` and `npm i`.
-   - Put the bed in `public/audio/`.
+   - `cp -R <skill>/template <project>` and `npm i`.
+   - Save the bed as `public/audio/bed.wav`.
    - Capture scripts load Playwright from the project folder (`npm i -D playwright`), or from the folder in
      `PLAYWRIGHT_FROM`.
-3. **Capture** site and product with a real mouse. Back up `meta.json` before a recapture. Pick product views
-   unlike each other and drag something real; never a hover tour.
+3. **Capture** site and product with a real mouse, from the project folder: the site script first, then each
+   product script (`node <skill>/scripts/reui/site-object.mjs`, then `live.mjs`, `dash.mjs`, `block-live.mjs` for
+   ReUI). Each adds its own entry to `meta.json`. The film plays only once every scene's captures exist. Back up
+   `meta.json` before a recapture. Pick product views unlike each other and drag something real; never a hover tour.
 4. **Edit** only what the brand changes (table above). Keep the helpers (`Flight`, `Wipe`, `Dim`, `Lead`, `Disc`,
    `Live`, `LiveRun`).
 5. **Check.**
    - `npx tsc --noEmit`. Only `TS6192` on unused imports is acceptable.
-   - From the project folder: `~/.claude/skills/brand-film/scripts/qa.sh <scratch>/q1 0.4 <frames...>`, then read
-     `sheet.jpg`.
+   - From the project folder: `<skill>/scripts/qa.sh <scratch>/q1 0.4 <frames...>`, then read `sheet.jpg`. The
+     out folder must be new or hold only earlier stills.
    - Sample every shot, both frames of each join, each sync frame and the ending.
    - Put your sheet next to `references/reui-frames/sheet.jpg`. Anything sparser, louder or more crowded than the
      template's matching shot is a finding.
